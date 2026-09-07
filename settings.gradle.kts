@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "Speed Meter"
+rootProject.name = "SpeedSync"
 
 include(":app")

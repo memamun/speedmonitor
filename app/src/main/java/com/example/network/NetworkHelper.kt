@@ -12,6 +12,10 @@ class NetworkHelper(private val context: Context) {
     private val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
 
+    companion object {
+        private var cachedWifiSsid: String? = null
+    }
+
     data class ConnectionInfo(
         val isConnected: Boolean,
         val isWifi: Boolean,
@@ -28,6 +32,10 @@ class NetworkHelper(private val context: Context) {
         val isWifi = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
         val isMobile = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
         val isEthernet = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+
+        if (!isWifi) {
+            cachedWifiSsid = null
+        }
 
         val name = when {
             isWifi -> {
@@ -51,7 +59,10 @@ class NetworkHelper(private val context: Context) {
                     } catch (_: Exception) {}
                 }
                 if (!ssid.isNullOrEmpty()) {
+                    cachedWifiSsid = ssid
                     ssid
+                } else if (!cachedWifiSsid.isNullOrEmpty()) {
+                    cachedWifiSsid!!
                 } else {
                     "Wi-Fi"
                 }
