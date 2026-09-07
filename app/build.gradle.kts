@@ -28,13 +28,13 @@ android {
       keyPassword = "android"
     }
     create("release") {
-      val keystorePath = System.getenv("KEYSTORE_PATH") ?: "${rootDir}/my-upload-key.jks"
+      val keystorePath = System.getenv("KEYSTORE_PATH") ?: "${rootDir}/speedsync-release-key.jks"
       val releaseKeystore = file(keystorePath)
       if (releaseKeystore.exists()) {
         storeFile = releaseKeystore
-        storePassword = System.getenv("STORE_PASSWORD")
-        keyAlias = "upload"
-        keyPassword = System.getenv("KEY_PASSWORD")
+        storePassword = System.getenv("STORE_PASSWORD") ?: "speedsync2026"
+        keyAlias = System.getenv("KEY_ALIAS") ?: "speedsync"
+        keyPassword = System.getenv("KEY_PASSWORD") ?: "speedsync2026"
       } else {
         storeFile = file("${rootDir}/debug.keystore")
         storePassword = "android"
