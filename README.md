@@ -1,13 +1,16 @@
 # Speed Meter (SpeedMonitor) ⚡
 
+[![Download APK](https://img.shields.io/badge/Download-APK%20v1.0.0-success?style=for-the-badge&logo=android)](https://github.com/memamun/speedmonitor/releases/latest)
 [![Android](https://img.shields.io/badge/Platform-Android-3DDC84.svg?style=flat&logo=android)](https://www.android.com)
 [![Kotlin](https://img.shields.io/badge/Language-Kotlin%202.x-7F52FF.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
 [![Compose](https://img.shields.io/badge/UI-Jetpack%20Compose%20M3-4285F4.svg?style=flat&logo=jetpackcompose)](https://developer.android.com/jetpack/compose)
 [![MinSdk](https://img.shields.io/badge/Min%20SDK-24-orange.svg?style=flat)](https://developer.android.com)
 [![TargetSdk](https://img.shields.io/badge/Target%20SDK-36-green.svg?style=flat)](https://developer.android.com)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Privacy Policy](https://img.shields.io/badge/Privacy-Policy-purple.svg?style=flat)](https://memamun.github.io/speedmonitor/)
 
 A high-performance, battery-efficient real-time internet speed meter and data monitor for Android, built entirely with modern Jetpack Compose, Material 3, and Kotlin Coroutines.
+
+> 📲 **Instant Install**: Download the ready-to-run [SpeedMeter_v1.0_Release.apk](https://github.com/memamun/speedmonitor/releases/latest) directly onto your Android device.
 
 ---
 
