@@ -1,16 +1,16 @@
 # SpeedSync — Internet Speed Meter ⚡
 
-[![Download APK](https://img.shields.io/badge/Download-APK%20v1.0.0-success?style=for-the-badge&logo=android)](https://github.com/memamun/speedmonitor/releases/latest)
+[![Download APK](https://img.shields.io/badge/Download-APK%20v1.0.0-success?style=for-the-badge&logo=android)](https://github.com/memamun/speedsync/releases/latest)
 [![Android](https://img.shields.io/badge/Platform-Android-3DDC84.svg?style=flat&logo=android)](https://www.android.com)
 [![Kotlin](https://img.shields.io/badge/Language-Kotlin%202.x-7F52FF.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
 [![Compose](https://img.shields.io/badge/UI-Jetpack%20Compose%20M3-4285F4.svg?style=flat&logo=jetpackcompose)](https://developer.android.com/jetpack/compose)
 [![MinSdk](https://img.shields.io/badge/Min%20SDK-24-orange.svg?style=flat)](https://developer.android.com)
 [![TargetSdk](https://img.shields.io/badge/Target%20SDK-36-green.svg?style=flat)](https://developer.android.com)
-[![Privacy Policy](https://img.shields.io/badge/Privacy-Policy-purple.svg?style=flat)](https://memamun.github.io/speedmonitor/)
+[![Privacy Policy](https://img.shields.io/badge/Privacy-Policy-purple.svg?style=flat)](https://memamun.github.io/speedsync/)
 
 A high-performance, battery-efficient real-time internet speed meter and network data monitor for Android, built with modern Jetpack Compose, Material 3 Expressive, and Kotlin Coroutines.
 
-> 📲 **Instant Install**: Download the ready-to-run [SpeedSync_v1.0_Release.apk](https://github.com/memamun/speedmonitor/releases/latest) directly onto your Android device.
+> 📲 **Instant Install**: Download the ready-to-run [SpeedSync_v1.0_Release.apk](https://github.com/memamun/speedsync/releases/latest) directly onto your Android device.
 
 ---
 
@@ -86,8 +86,8 @@ A high-performance, battery-efficient real-time internet speed meter and network
 
 ```bash
 # Clone the repository
-git clone https://github.com/memamun/speedmonitor.git
-cd speedmonitor
+git clone https://github.com/memamun/speedsync.git
+cd speedsync
 
 # Run unit tests
 ./gradlew testDebugUnitTest
@@ -103,7 +103,7 @@ The compiled APK will be located at `app/build/outputs/apk/debug/app-debug.apk`.
 ## 📄 License
 
 ```
-Copyright 2026 SpeedMonitor Contributors
+Copyright 2026 SpeedSync Contributors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
