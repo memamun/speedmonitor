@@ -101,7 +101,7 @@ class SpeedMeterService : Service() {
         val pm = getSystemService(Context.POWER_SERVICE) as? PowerManager
         isScreenOn = pm?.isInteractive ?: true
         try {
-            wakeLock = pm?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "SpeedMeter::LiveMonitoring")?.apply {
+            wakeLock = pm?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "SpeedSync::LiveMonitoring")?.apply {
                 setReferenceCounted(false)
             }
         } catch (_: Exception) {}
@@ -347,7 +347,7 @@ class SpeedMeterService : Service() {
             .setOnlyAlertOnce(true)
             .setShowWhen(false)
             .setWhen(System.currentTimeMillis() * 3L) // Future timestamp puts our meter at the highest priority in status bar
-            .setSortKey("!0000_speed_meter") // Top alphabetical sort key keeps icon at first position
+            .setSortKey("!0000_speedsync") // Top alphabetical sort key keeps icon at first position
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setPriority(NotificationCompat.PRIORITY_LOW) // Silent priority, no heads-up popup
             .setCategory(NotificationCompat.CATEGORY_STATUS)
@@ -538,11 +538,12 @@ class SpeedMeterService : Service() {
                 notificationManager.deleteNotificationChannel("speed_meter_channel")
                 notificationManager.deleteNotificationChannel("speed_meter_pinned_v3")
                 notificationManager.deleteNotificationChannel("speed_meter_pinned_v4")
+                notificationManager.deleteNotificationChannel("speed_meter_silent_v5")
             } catch (_: Exception) {}
 
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "Internet Speed Meter",
+                "SpeedSync Live Speed",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
                 description = "Shows live internet upload and download speed in status bar"
@@ -594,9 +595,9 @@ class SpeedMeterService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     companion object {
-        const val CHANNEL_ID = "speed_meter_silent_v5"
+        const val CHANNEL_ID = "speedsync_silent_v1"
         const val NOTIFICATION_ID = 1001
-        const val ACTION_STOP = "com.example.speedmeter.STOP"
+        const val ACTION_STOP = "com.memamun.speedsync.STOP"
 
         private val _liveSpeedData = MutableStateFlow(LiveSpeedData())
         val liveSpeedData: StateFlow<LiveSpeedData> = _liveSpeedData.asStateFlow()
