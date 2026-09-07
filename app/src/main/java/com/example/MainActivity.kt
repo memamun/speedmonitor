@@ -51,13 +51,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -87,7 +88,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val themeMode by viewModel.themeMode.collectAsState()
+            val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
             MyApplicationTheme(themeMode = themeMode) {
                 SpeedMeterApp(viewModel)
             }
@@ -103,17 +104,17 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun SpeedMeterApp(viewModel: SpeedMeterViewModel) {
     val context = LocalContext.current
-    val liveSpeed by viewModel.liveSpeed.collectAsState()
-    val isServiceRunning by viewModel.isServiceRunning.collectAsState()
-    val speedTestResult by viewModel.speedTestResult.collectAsState()
-    val historyList by viewModel.historyList.collectAsState()
-    val isStartOnBoot by viewModel.isStartOnBoot.collectAsState()
-    val speedUnit by viewModel.speedUnit.collectAsState()
-    val selectedTab by viewModel.selectedTab.collectAsState()
-    val showSettingsDialog by viewModel.showSettingsDialog.collectAsState()
-    val isTesting by viewModel.isTesting.collectAsState()
-    val isBatteryOptimizationIgnored by viewModel.isBatteryOptimizationIgnored.collectAsState()
-    val themeMode by viewModel.themeMode.collectAsState()
+    val liveSpeed by viewModel.liveSpeed.collectAsStateWithLifecycle()
+    val isServiceRunning by viewModel.isServiceRunning.collectAsStateWithLifecycle()
+    val speedTestResult by viewModel.speedTestResult.collectAsStateWithLifecycle()
+    val historyList by viewModel.historyList.collectAsStateWithLifecycle()
+    val isStartOnBoot by viewModel.isStartOnBoot.collectAsStateWithLifecycle()
+    val speedUnit by viewModel.speedUnit.collectAsStateWithLifecycle()
+    val selectedTab by viewModel.selectedTab.collectAsStateWithLifecycle()
+    val showSettingsDialog by viewModel.showSettingsDialog.collectAsStateWithLifecycle()
+    val isTesting by viewModel.isTesting.collectAsStateWithLifecycle()
+    val isBatteryOptimizationIgnored by viewModel.isBatteryOptimizationIgnored.collectAsStateWithLifecycle()
+    val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
 
     var hasNotificationPermission by remember {
         mutableStateOf(
@@ -199,6 +200,9 @@ fun SpeedMeterApp(viewModel: SpeedMeterViewModel) {
                             speedUnit = speedUnit,
                             onRunSpeedTest = {
                                 viewModel.startSpeedTest()
+                            },
+                            onCancelSpeedTest = {
+                                viewModel.cancelSpeedTest()
                             }
                         )
                     }
@@ -318,7 +322,8 @@ fun SpeedMainScreen(
     speedTestResult: com.example.model.SpeedTestResult,
     liveSpeed: com.example.model.LiveSpeedData,
     speedUnit: com.example.model.SpeedUnit,
-    onRunSpeedTest: () -> Unit
+    onRunSpeedTest: () -> Unit,
+    onCancelSpeedTest: () -> Unit = {}
 ) {
     // Gauge speed calculation
     val (displaySpeed, displayUnit, progress) = remember(isTesting, speedTestResult, liveSpeed, speedUnit) {
@@ -380,18 +385,17 @@ fun SpeedMainScreen(
 
         // Primary Test Button
         Button(
-            onClick = onRunSpeedTest,
-            enabled = !isTesting,
+            onClick = {
+                if (isTesting) onCancelSpeedTest() else onRunSpeedTest()
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp)
                 .testTag("test_speed_button"),
             shape = RoundedCornerShape(24.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                containerColor = if (isTesting) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                contentColor = if (isTesting) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onPrimary
             )
         ) {
             Row(
@@ -402,10 +406,10 @@ fun SpeedMainScreen(
                     CircularProgressIndicator(
                         modifier = Modifier.size(18.dp),
                         strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onError
                     )
                     Text(
-                        text = "TESTING NETWORK...",
+                        text = "CANCEL TEST",
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
                         letterSpacing = 1.sp
@@ -547,7 +551,10 @@ fun NavTabItem(
 
     Column(
         modifier = Modifier
-            .clickable { onClick() }
+            .clickable(
+                role = Role.Tab,
+                onClickLabel = "Switch to $label tab"
+            ) { onClick() }
             .padding(horizontal = 12.dp, vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center

@@ -22,6 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,8 +46,14 @@ fun SpeedGauge(
     val activeColor = MaterialTheme.colorScheme.primary
     val textColor = MaterialTheme.colorScheme.onBackground
 
+    val gaugeDescription = "Current speed $speedValue $speedUnitLabel"
+
     Box(
-        modifier = modifier.size(200.dp),
+        modifier = modifier
+            .size(200.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = gaugeDescription
+            },
         contentAlignment = Alignment.Center
     ) {
         Canvas(modifier = Modifier.size(184.dp)) {

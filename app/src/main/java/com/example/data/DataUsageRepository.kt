@@ -36,6 +36,7 @@ class DataUsageRepository(context: Context) {
             cachedWifi = prefs.getLong("${KEY_WIFI_PREFIX}_$today", 0L)
             cachedMobile = prefs.getLong("${KEY_MOBILE_PREFIX}_$today", 0L)
             lastFlushTime = System.currentTimeMillis()
+            pruneHistoryIfNeeded()
         }
     }
 
@@ -121,6 +122,22 @@ class DataUsageRepository(context: Context) {
         }
     }
 
+    private fun pruneHistoryIfNeeded() {
+        val pastDays = getHistoryDates()
+        if (pastDays.size > MAX_HISTORY_DAYS) {
+            val sorted = pastDays.toList().sortedDescending()
+            val toKeep = sorted.take(MAX_HISTORY_DAYS).toSet()
+            val toRemove = sorted.drop(MAX_HISTORY_DAYS)
+            val editor = prefs.edit()
+            for (oldDate in toRemove) {
+                editor.remove("${KEY_WIFI_PREFIX}_$oldDate")
+                editor.remove("${KEY_MOBILE_PREFIX}_$oldDate")
+            }
+            editor.putStringSet(KEY_HISTORY_DATES, toKeep)
+            editor.apply()
+        }
+    }
+
     private fun flushInternal(now: Long) {
         if (cachedToday.isEmpty()) return
         val today = cachedToday
@@ -131,7 +148,18 @@ class DataUsageRepository(context: Context) {
             if (!currentDay.isNullOrEmpty()) {
                 val pastDays = getHistoryDates().toMutableSet()
                 pastDays.add(currentDay)
-                editor.putStringSet(KEY_HISTORY_DATES, pastDays)
+                if (pastDays.size > MAX_HISTORY_DAYS) {
+                    val sorted = pastDays.toList().sortedDescending()
+                    val toKeep = sorted.take(MAX_HISTORY_DAYS).toSet()
+                    val toRemove = sorted.drop(MAX_HISTORY_DAYS)
+                    for (oldDate in toRemove) {
+                        editor.remove("${KEY_WIFI_PREFIX}_$oldDate")
+                        editor.remove("${KEY_MOBILE_PREFIX}_$oldDate")
+                    }
+                    editor.putStringSet(KEY_HISTORY_DATES, toKeep)
+                } else {
+                    editor.putStringSet(KEY_HISTORY_DATES, pastDays)
+                }
             }
             editor.putString(KEY_CURRENT_DATE, today)
         }
@@ -199,6 +227,7 @@ class DataUsageRepository(context: Context) {
         private const val KEY_MOBILE_PREFIX = "usage_mobile"
         private const val KEY_HISTORY_DATES = "history_dates"
         private const val FLUSH_INTERVAL_MS = 15_000L
+        private const val MAX_HISTORY_DAYS = 60
 
         fun formatBytes(bytes: Long): String {
             if (bytes <= 0) return "0 B"

@@ -18,6 +18,7 @@ import com.example.model.SpeedUnit
 import com.example.model.ThemeMode
 import com.example.network.SpeedTestEngine
 import com.example.service.SpeedMeterService
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -112,10 +113,12 @@ class SpeedMeterViewModel(application: Application) : AndroidViewModel(applicati
         _themeMode.value = mode
     }
 
+    private var speedTestJob: Job? = null
+
     fun startSpeedTest() {
         if (_isTesting.value) return
         _isTesting.value = true
-        viewModelScope.launch {
+        speedTestJob = viewModelScope.launch {
             try {
                 speedTestEngine.runSpeedTest()
             } finally {
@@ -123,5 +126,11 @@ class SpeedMeterViewModel(application: Application) : AndroidViewModel(applicati
                 refreshHistory()
             }
         }
+    }
+
+    fun cancelSpeedTest() {
+        speedTestJob?.cancel()
+        speedTestEngine.cancel()
+        _isTesting.value = false
     }
 }

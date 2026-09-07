@@ -59,6 +59,10 @@ class SpeedMeterService : Service() {
     private var lastMobileTxBytes: Long = 0L
     private var lastTimestamp: Long = 0L
 
+    private var lastNotifiedSpeedBytes: Long = -1L
+    private var lastNotifiedTotalBytes: Long = -1L
+    private var lastNotificationTime: Long = 0L
+
     private var wakeLock: PowerManager.WakeLock? = null
     private var isScreenOn: Boolean = true
 
@@ -178,6 +182,11 @@ class SpeedMeterService : Service() {
         val currentMobileRx = TrafficStats.getMobileRxBytes()
         val currentMobileTx = TrafficStats.getMobileTxBytes()
 
+        // Guard against devices where TrafficStats is unsupported (-1)
+        if (currentRx < 0L || currentTx < 0L) {
+            return
+        }
+
         val timeDeltaSec = ((now - lastTimestamp).coerceAtLeast(500)) / 1000.0
 
         // Calculate deltas safely (handle potential counter resets or negatives)
@@ -237,18 +246,28 @@ class SpeedMeterService : Service() {
 
         // Update notification when screen is on or explicitly requested
         if (isScreenOn || forceNotify) {
-            val notification = buildNotification(
-                rxSpeedBytes = rxSpeedBytes,
-                txSpeedBytes = txSpeedBytes,
-                networkName = connInfo.networkName,
-                todayTotal = DataUsageRepository.formatBytes(todayTotal),
-                todayWifi = DataUsageRepository.formatBytes(todayWifi),
-                todayMobile = DataUsageRepository.formatBytes(todayMobile)
-            )
+            val shouldNotify = forceNotify ||
+                totalSpeedBytes != lastNotifiedSpeedBytes ||
+                todayTotal != lastNotifiedTotalBytes ||
+                (now - lastNotificationTime) >= 5000L
 
-            try {
-                notificationManager.notify(NOTIFICATION_ID, notification)
-            } catch (_: Exception) {}
+            if (shouldNotify) {
+                val notification = buildNotification(
+                    rxSpeedBytes = rxSpeedBytes,
+                    txSpeedBytes = txSpeedBytes,
+                    networkName = connInfo.networkName,
+                    todayTotal = DataUsageRepository.formatBytes(todayTotal),
+                    todayWifi = DataUsageRepository.formatBytes(todayWifi),
+                    todayMobile = DataUsageRepository.formatBytes(todayMobile)
+                )
+
+                try {
+                    notificationManager.notify(NOTIFICATION_ID, notification)
+                    lastNotifiedSpeedBytes = totalSpeedBytes
+                    lastNotifiedTotalBytes = todayTotal
+                    lastNotificationTime = now
+                } catch (_: Exception) {}
+            }
         }
     }
 
@@ -597,11 +616,16 @@ class SpeedMeterService : Service() {
         super.onTaskRemoved(rootIntent)
         // Ensure service stays running or restarts if the user closes/swipes the app from recents
         if (dataRepo.isServiceEnabled()) {
-            val restartIntent = Intent(applicationContext, SpeedMeterService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                applicationContext.startForegroundService(restartIntent)
-            } else {
-                applicationContext.startService(restartIntent)
+            try {
+                val restartIntent = Intent(applicationContext, SpeedMeterService::class.java)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    applicationContext.startForegroundService(restartIntent)
+                } else {
+                    applicationContext.startService(restartIntent)
+                }
+            } catch (_: Exception) {
+                // Ignore ForegroundServiceStartNotAllowedException on API 31+ if background restricted.
+                // The service is already running with stopWithTask="false".
             }
         }
     }

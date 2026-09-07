@@ -26,6 +26,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -93,9 +95,13 @@ fun MetricCard(
     valueColor: Color = Color.Unspecified
 ) {
     val resolvedValueColor = if (valueColor != Color.Unspecified) valueColor else MaterialTheme.colorScheme.onSurface
+    val cardDesc = "$label $value $unit"
 
     Box(
         modifier = modifier
+            .semantics(mergeDescendants = true) {
+                contentDescription = cardDesc
+            }
             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(14.dp))
             .padding(horizontal = 12.dp, vertical = 10.dp)
     ) {

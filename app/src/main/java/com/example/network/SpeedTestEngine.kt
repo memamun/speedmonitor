@@ -2,12 +2,16 @@ package com.example.network
 
 import com.example.model.SpeedTestPhase
 import com.example.model.SpeedTestResult
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
+import okhttp3.Call
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -28,6 +32,9 @@ class SpeedTestEngine {
     private val _testResult = MutableStateFlow(SpeedTestResult())
     val testResult: StateFlow<SpeedTestResult> = _testResult.asStateFlow()
 
+    @Volatile
+    private var activeCall: Call? = null
+
     suspend fun runSpeedTest() = withContext(Dispatchers.IO) {
         _testResult.value = SpeedTestResult(
             phase = SpeedTestPhase.PING,
@@ -45,10 +52,13 @@ class SpeedTestEngine {
         )
 
         for ((index, url) in pingEndpoints.withIndex()) {
+            if (!currentCoroutineContext().isActive) break
             val start = System.currentTimeMillis()
             try {
                 val req = Request.Builder().url(url).head().build()
-                client.newCall(req).execute().use { resp ->
+                val call = client.newCall(req)
+                activeCall = call
+                call.execute().use { resp ->
                     if (resp.isSuccessful) {
                         val duration = System.currentTimeMillis() - start
                         pingTimes.add(duration)
@@ -56,10 +66,14 @@ class SpeedTestEngine {
                         failedPings++
                     }
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 // In case of network timeout or emulator sandbox
                 val simulatedPing = Random.nextLong(12, 28)
                 pingTimes.add(simulatedPing)
+            } finally {
+                activeCall = null
             }
             val progress = 0.05f + (0.15f * (index + 1) / pingEndpoints.size)
             _testResult.value = _testResult.value.copy(
@@ -68,6 +82,8 @@ class SpeedTestEngine {
             )
             delay(120)
         }
+
+        if (!currentCoroutineContext().isActive) return@withContext
 
         val avgPing = if (pingTimes.isNotEmpty()) pingTimes.average().roundToLong() else 18L
         var jitterSum = 0L
@@ -93,15 +109,17 @@ class SpeedTestEngine {
 
         try {
             val req = Request.Builder().url(downloadUrl).build()
-            client.newCall(req).execute().use { response ->
+            val call = client.newCall(req)
+            activeCall = call
+            call.execute().use { response ->
                 val body = response.body
                 if (response.isSuccessful && body != null) {
                     val stream: InputStream = body.byteStream()
                     val buffer = ByteArray(16384)
-                    var bytesRead: Int
+                    var bytesRead = 0
                     val maxTestDuration = 6000L // 6 seconds
 
-                    while (stream.read(buffer).also { bytesRead = it } != -1) {
+                    while (currentCoroutineContext().isActive && stream.read(buffer).also { bytesRead = it } != -1) {
                         totalBytesReceived += bytesRead
                         val now = System.currentTimeMillis()
                         val elapsed = now - downloadStart
@@ -125,10 +143,14 @@ class SpeedTestEngine {
                     throw IllegalStateException("Download response unsuccessful")
                 }
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
+            if (!currentCoroutineContext().isActive) return@withContext
             // Emulated fallback curve if external CDN is unreachable
             val targetSpeed = Random.nextDouble(115.0, 165.0)
             for (step in 1..20) {
+                if (!currentCoroutineContext().isActive) break
                 delay(150)
                 val fraction = step / 20.0
                 val curSpeed = targetSpeed * (1.0 - Math.exp(-3.0 * fraction)) + Random.nextDouble(-4.0, 4.0)
@@ -139,7 +161,11 @@ class SpeedTestEngine {
                     progress = progress
                 )
             }
+        } finally {
+            activeCall = null
         }
+
+        if (!currentCoroutineContext().isActive) return@withContext
 
         val finalDownloadSpeed = _testResult.value.downloadSpeedMbps.coerceAtLeast(15.0)
 
@@ -162,9 +188,12 @@ class SpeedTestEngine {
             val maxUploadDuration = 5000L // 5 seconds max
 
             for (i in 0 until 10) {
+                if (!currentCoroutineContext().isActive) break
                 val callStart = System.currentTimeMillis()
                 try {
-                    client.newCall(req).execute().use { resp ->
+                    val call = client.newCall(req)
+                    activeCall = call
+                    call.execute().use { resp ->
                         if (resp.isSuccessful) {
                             val callDuration = (System.currentTimeMillis() - callStart).coerceAtLeast(10)
                             totalBytesUploaded += chunk.size
@@ -172,7 +201,12 @@ class SpeedTestEngine {
                             measuredSpeeds.add(currentSpeed)
                         }
                     }
-                } catch (_: Exception) {}
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                } finally {
+                    activeCall = null
+                }
 
                 val totalElapsed = (System.currentTimeMillis() - uploadStart).coerceAtLeast(100)
                 val avgMeasured = if (measuredSpeeds.isNotEmpty()) {
@@ -192,7 +226,10 @@ class SpeedTestEngine {
                     break
                 }
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
+            if (!currentCoroutineContext().isActive) return@withContext
             val fallbackUpload = if (measuredSpeeds.isNotEmpty()) {
                 measuredSpeeds.average()
             } else {
@@ -203,7 +240,11 @@ class SpeedTestEngine {
                 currentSpeedMbps = fallbackUpload.coerceAtLeast(1.0),
                 progress = 0.98f
             )
+        } finally {
+            activeCall = null
         }
+
+        if (!currentCoroutineContext().isActive) return@withContext
 
         val finalUploadSpeed = _testResult.value.uploadSpeedMbps.coerceAtLeast(1.0)
 
@@ -217,7 +258,19 @@ class SpeedTestEngine {
         )
     }
 
+    fun cancel() {
+        try {
+            activeCall?.cancel()
+        } catch (_: Exception) {}
+        activeCall = null
+        _testResult.value = SpeedTestResult(
+            phase = SpeedTestPhase.IDLE,
+            progress = 0f,
+            testFinished = false
+        )
+    }
+
     fun reset() {
-        _testResult.value = SpeedTestResult()
+        cancel()
     }
 }
