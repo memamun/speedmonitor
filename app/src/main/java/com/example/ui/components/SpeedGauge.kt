@@ -43,23 +43,23 @@ fun SpeedGauge(
     )
 
     val trackColor = MaterialTheme.colorScheme.surfaceVariant
-    val activeColor = MaterialTheme.colorScheme.primary
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val secondaryColor = MaterialTheme.colorScheme.secondary
     val textColor = MaterialTheme.colorScheme.onBackground
 
     val gaugeDescription = "Current speed $speedValue $speedUnitLabel"
 
     Box(
         modifier = modifier
-            .size(200.dp)
+            .size(208.dp)
             .semantics(mergeDescendants = true) {
                 contentDescription = gaugeDescription
             },
         contentAlignment = Alignment.Center
     ) {
-        Canvas(modifier = Modifier.size(184.dp)) {
-            val strokeWidth = 12.dp.toPx()
+        Canvas(modifier = Modifier.size(192.dp)) {
+            val strokeWidth = 13.dp.toPx()
             val diameter = min(size.width, size.height) - strokeWidth
-            val radius = diameter / 2f
             val topLeftOffset = androidx.compose.ui.geometry.Offset(
                 (size.width - diameter) / 2f,
                 (size.height - diameter) / 2f
@@ -79,7 +79,7 @@ fun SpeedGauge(
 
             // Accent active speed arc
             drawArc(
-                color = activeColor,
+                color = primaryColor,
                 startAngle = 135f,
                 sweepAngle = 270f * animatedProgress,
                 useCenter = false,
@@ -96,18 +96,18 @@ fun SpeedGauge(
         ) {
             Text(
                 text = speedValue,
-                fontSize = if (speedValue.length > 5) 36.sp else 44.sp,
+                fontSize = if (speedValue.length > 5) 38.sp else 46.sp,
                 fontWeight = FontWeight.Bold,
                 color = textColor,
-                letterSpacing = (-1).sp
+                letterSpacing = (-1.5).sp
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = speedUnitLabel.uppercase(),
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Medium,
-                color = activeColor,
-                letterSpacing = 1.5.sp
+                fontSize = 11.5.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = primaryColor,
+                letterSpacing = 1.8.sp
             )
         }
 
@@ -126,7 +126,7 @@ fun SpeedGauge(
                         .width(4.dp)
                         .height(10.dp)
                         .background(
-                            color = if (isActive) activeColor else trackColor,
+                            color = if (isActive) primaryColor else trackColor,
                             shape = RoundedCornerShape(2.dp)
                         )
                 )

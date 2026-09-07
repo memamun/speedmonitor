@@ -2,6 +2,7 @@ package com.example.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import com.example.model.DayUsageItem
 import com.example.model.SpeedUnit
 import com.example.model.ThemeMode
@@ -45,13 +46,13 @@ class DataUsageRepository(context: Context) {
     fun isServiceEnabled(): Boolean = prefs.getBoolean(KEY_SERVICE_ENABLED, true)
 
     fun setServiceEnabled(enabled: Boolean) {
-        prefs.edit().putBoolean(KEY_SERVICE_ENABLED, enabled).apply()
+        prefs.edit { putBoolean(KEY_SERVICE_ENABLED, enabled) }
     }
 
     fun isStartOnBoot(): Boolean = prefs.getBoolean(KEY_START_ON_BOOT, true)
 
     fun setStartOnBoot(enabled: Boolean) {
-        prefs.edit().putBoolean(KEY_START_ON_BOOT, enabled).apply()
+        prefs.edit { putBoolean(KEY_START_ON_BOOT, enabled) }
     }
 
     fun getSpeedUnit(): SpeedUnit {
@@ -64,20 +65,20 @@ class DataUsageRepository(context: Context) {
     }
 
     fun setSpeedUnit(unit: SpeedUnit) {
-        prefs.edit().putString(KEY_SPEED_UNIT, unit.name).apply()
+        prefs.edit { putString(KEY_SPEED_UNIT, unit.name) }
     }
 
     fun getThemeMode(): ThemeMode {
-        val name = prefs.getString(KEY_THEME_MODE, ThemeMode.SYSTEM.name) ?: ThemeMode.SYSTEM.name
+        val name = prefs.getString(KEY_THEME_MODE, ThemeMode.DARK.name) ?: ThemeMode.DARK.name
         return try {
             ThemeMode.valueOf(name)
         } catch (_: Exception) {
-            ThemeMode.SYSTEM
+            ThemeMode.DARK
         }
     }
 
     fun setThemeMode(mode: ThemeMode) {
-        prefs.edit().putString(KEY_THEME_MODE, mode.name).apply()
+        prefs.edit { putString(KEY_THEME_MODE, mode.name) }
     }
 
     /**

@@ -1,6 +1,8 @@
 package com.example.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.StatusGreen
 import com.example.ui.theme.StatusRed
+import com.example.ui.theme.statusGreen
+import com.example.ui.theme.statusRed
 
 @Composable
 fun MetricCardsGrid(
@@ -79,7 +83,7 @@ fun MetricCardsGrid(
                 label = "LOSS",
                 value = lossPercent,
                 unit = "%",
-                valueColor = StatusRed,
+                valueColor = MaterialTheme.statusRed,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -102,15 +106,19 @@ fun MetricCard(
             .semantics(mergeDescendants = true) {
                 contentDescription = cardDesc
             }
-            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(14.dp))
-            .padding(horizontal = 12.dp, vertical = 10.dp)
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(18.dp))
+            .border(
+                BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
+                RoundedCornerShape(18.dp)
+            )
+            .padding(horizontal = 14.dp, vertical = 12.dp)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
             Text(
                 text = label,
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Medium,
-                letterSpacing = 1.sp,
+                fontSize = 10.5.sp,
+                fontWeight = FontWeight.SemiBold,
+                letterSpacing = 1.2.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Row(
@@ -119,14 +127,15 @@ fun MetricCard(
             ) {
                 Text(
                     text = value,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = (-0.5).sp,
                     color = resolvedValueColor
                 )
                 Text(
                     text = unit,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Normal,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 2.dp)
                 )
@@ -144,8 +153,12 @@ fun StatusBarMeterControlBanner(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
-            .padding(horizontal = 14.dp, vertical = 8.dp)
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
+            .border(
+                BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
+                RoundedCornerShape(20.dp)
+            )
+            .padding(horizontal = 14.dp, vertical = 10.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -189,7 +202,7 @@ fun StatusBarMeterControlBanner(
                             modifier = Modifier
                                 .size(6.dp)
                                 .background(
-                                    if (isServiceRunning) StatusGreen else Color.Gray,
+                                    if (isServiceRunning) MaterialTheme.statusGreen else Color.Gray,
                                     CircleShape
                                 )
                         )

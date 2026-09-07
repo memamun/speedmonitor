@@ -1,7 +1,9 @@
 package com.example.service
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
+import androidx.core.graphics.createBitmap
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
@@ -61,6 +63,7 @@ class SpeedMeterService : Service() {
 
     private var lastNotifiedSpeedBytes: Long = -1L
     private var lastNotifiedTotalBytes: Long = -1L
+    private var lastNotifiedNetworkName: String = ""
     private var lastNotificationTime: Long = 0L
 
     private var wakeLock: PowerManager.WakeLock? = null
@@ -117,12 +120,7 @@ class SpeedMeterService : Service() {
             dataRepo.setServiceEnabled(false)
             dataRepo.flush()
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    stopForeground(STOP_FOREGROUND_REMOVE)
-                } else {
-                    @Suppress("DEPRECATION")
-                    stopForeground(true)
-                }
+                stopForeground(STOP_FOREGROUND_REMOVE)
             } catch (_: Exception) {}
             stopSelf()
             return START_NOT_STICKY
@@ -249,6 +247,7 @@ class SpeedMeterService : Service() {
             val shouldNotify = forceNotify ||
                 totalSpeedBytes != lastNotifiedSpeedBytes ||
                 todayTotal != lastNotifiedTotalBytes ||
+                connInfo.networkName != lastNotifiedNetworkName ||
                 (now - lastNotificationTime) >= 5000L
 
             if (shouldNotify) {
@@ -265,6 +264,7 @@ class SpeedMeterService : Service() {
                     notificationManager.notify(NOTIFICATION_ID, notification)
                     lastNotifiedSpeedBytes = totalSpeedBytes
                     lastNotifiedTotalBytes = todayTotal
+                    lastNotifiedNetworkName = connInfo.networkName
                     lastNotificationTime = now
                 } catch (_: Exception) {}
             }
@@ -322,7 +322,6 @@ class SpeedMeterService : Service() {
 
         // Exact pre-rendered drawable icon matching Internet Speed Meter Lite (fallback to dynamic)
         val statusIconCompat = getExactSpeedIcon(totalActiveBytes) ?: getDynamicSpeedIcon(statusSpeed.value, statusSpeed.unit)
-        val drawerBadgeBitmap = createNotificationBadgeBitmap(statusSpeed.value, statusSpeed.unit)
 
         val appIntent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -334,40 +333,26 @@ class SpeedMeterService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val stopIntent = Intent(this, SpeedMeterService::class.java).apply {
-            action = ACTION_STOP
-        }
-        val pendingStopIntent = PendingIntent.getService(
-            this,
-            1,
-            stopIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
         val title = "↓ $downSpeedStr $downUnit   ↑ $upSpeedStr $upUnit"
-        val content = "Today: $todayTotal (WiFi: $todayWifi, Mobile: $todayMobile)"
+        val content = "$networkName  •  Today: $todayTotal"
+        val bigText = "Network: $networkName\nDownload: $downSpeedStr $downUnit   Upload: $upSpeedStr $upUnit\nToday: $todayTotal  (Wi-Fi: $todayWifi  •  Mobile: $todayMobile)"
 
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(content)
             .setSubText(networkName)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(bigText))
             .setContentIntent(pendingAppIntent)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setShowWhen(false)
             .setWhen(System.currentTimeMillis() * 3L) // Future timestamp puts our meter at the highest priority in status bar
             .setSortKey("!0000_speed_meter") // Top alphabetical sort key keeps icon at first position
-            .setTicker("${statusSpeed.value} ${statusSpeed.unit}")
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setPriority(NotificationCompat.PRIORITY_MAX) // Maximum priority for leftmost status bar placement
+            .setPriority(NotificationCompat.PRIORITY_LOW) // Silent priority, no heads-up popup
             .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setLocalOnly(true)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .addAction(0, "Stop Meter", pendingStopIntent)
-
-        if (drawerBadgeBitmap != null) {
-            builder.setLargeIcon(drawerBadgeBitmap)
-        }
 
         if (statusIconCompat != null) {
             builder.setSmallIcon(statusIconCompat)
@@ -434,6 +419,7 @@ class SpeedMeterService : Service() {
 
     private val resIdCache = HashMap<String, Int>(1300)
 
+    @SuppressLint("DiscouragedApi")
     private fun getDrawableResId(resName: String): Int {
         val cached = resIdCache[resName]
         if (cached != null) return cached
@@ -482,7 +468,7 @@ class SpeedMeterService : Service() {
     private fun createDynamicSpeedIcon(cleanSpeed: String, displayUnit: String): IconCompat? {
         return try {
             val size = 48
-            val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888).apply {
+            val bitmap = createBitmap(size, size, Bitmap.Config.ARGB_8888).apply {
                 density = DisplayMetrics.DENSITY_HIGH // 240 dpi, matching drawable-hdpi
             }
             val canvas = Canvas(bitmap)
@@ -546,61 +532,18 @@ class SpeedMeterService : Service() {
         }
     }
 
-    /**
-     * Creates a high-resolution 128x128 badge for the notification drawer preview.
-     */
-    private fun createNotificationBadgeBitmap(speedStr: String, unitStr: String): Bitmap? {
-        return try {
-            val size = 128
-            val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(bitmap)
-
-            val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = android.graphics.Color.parseColor("#2B2930")
-            }
-            val rect = RectF(0f, 0f, size.toFloat(), size.toFloat())
-            canvas.drawRoundRect(rect, 24f, 24f, bgPaint)
-
-            val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = android.graphics.Color.parseColor("#D0BCFF")
-                style = Paint.Style.STROKE
-                strokeWidth = 4f
-            }
-            canvas.drawRoundRect(rect, 24f, 24f, borderPaint)
-
-            val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = Color.WHITE
-                typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
-                textAlign = Paint.Align.CENTER
-                textSize = if (speedStr.length > 3) 48f else 54f
-            }
-            canvas.drawText(speedStr, size / 2f, 66f, textPaint)
-
-            val unitPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = android.graphics.Color.parseColor("#D0BCFF")
-                typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
-                textAlign = Paint.Align.CENTER
-                textSize = 28f
-            }
-            canvas.drawText(unitStr, size / 2f, 106f, unitPaint)
-
-            bitmap
-        } catch (e: Exception) {
-            null
-        }
-    }
-
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             try {
                 notificationManager.deleteNotificationChannel("speed_meter_channel")
                 notificationManager.deleteNotificationChannel("speed_meter_pinned_v3")
+                notificationManager.deleteNotificationChannel("speed_meter_pinned_v4")
             } catch (_: Exception) {}
 
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 "Internet Speed Meter",
-                NotificationManager.IMPORTANCE_HIGH
+                NotificationManager.IMPORTANCE_LOW
             ).apply {
                 description = "Shows live internet upload and download speed in status bar"
                 setShowBadge(false)
@@ -651,7 +594,7 @@ class SpeedMeterService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     companion object {
-        const val CHANNEL_ID = "speed_meter_pinned_v4"
+        const val CHANNEL_ID = "speed_meter_silent_v5"
         const val NOTIFICATION_ID = 1001
         const val ACTION_STOP = "com.example.speedmeter.STOP"
 

@@ -34,27 +34,35 @@ class NetworkHelper(private val context: Context) {
                 var ssid: String? = null
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     val wifiInfo = capabilities.transportInfo as? WifiInfo
-                    ssid = wifiInfo?.ssid?.replace("\"", "")
+                    val raw = wifiInfo?.ssid?.removeSurrounding("\"")
+                    if (!raw.isNullOrEmpty() && raw != "<unknown ssid>" && raw != "0x") {
+                        ssid = raw
+                    }
                 }
-                if (ssid.isNullOrEmpty() || ssid == "<unknown ssid>") {
-                    @Suppress("DEPRECATION")
-                    val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
-                    @Suppress("DEPRECATION")
-                    ssid = wifiManager?.connectionInfo?.ssid?.replace("\"", "")
+                if (ssid.isNullOrEmpty()) {
+                    try {
+                        @Suppress("DEPRECATION")
+                        val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
+                        @Suppress("DEPRECATION")
+                        val raw = wifiManager?.connectionInfo?.ssid?.removeSurrounding("\"")
+                        if (!raw.isNullOrEmpty() && raw != "<unknown ssid>" && raw != "0x") {
+                            ssid = raw
+                        }
+                    } catch (_: Exception) {}
                 }
-                if (!ssid.isNullOrEmpty() && ssid != "<unknown ssid>") {
+                if (!ssid.isNullOrEmpty()) {
                     ssid
                 } else {
-                    "Wi-Fi Network"
+                    "Wi-Fi"
                 }
             }
             isMobile -> {
                 val tm = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
                 val opName = tm?.networkOperatorName
                 if (!opName.isNullOrEmpty()) {
-                    "$opName Mobile"
+                    opName
                 } else {
-                    "Cellular Network"
+                    "Mobile Data"
                 }
             }
             isEthernet -> "Ethernet"

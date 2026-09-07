@@ -16,19 +16,21 @@ private val DarkColorScheme =
     darkColorScheme(
         primary = DarkAccentPurple,
         onPrimary = OnAccentPurple,
-        primaryContainer = Color(0xFF4F378B),
+        primaryContainer = Color(0xFF352B4E),
         onPrimaryContainer = Color(0xFFEADDFF),
-        secondary = PurpleGrey80,
-        onSecondary = DarkBackground,
+        secondary = Color(0xFFCCC2DC),
+        onSecondary = Color(0xFF332D41),
+        secondaryContainer = DarkSecondaryContainer,
+        onSecondaryContainer = OnDarkSecondaryContainer,
         surface = DarkSurface,
         onSurface = DarkTextPrimary,
         surfaceVariant = DarkSurfaceVariant,
         onSurfaceVariant = DarkTextSecondary,
         background = DarkBackground,
         onBackground = DarkTextPrimary,
-        outline = Color(0xFF4A4458),
-        outlineVariant = Color(0xFF383545),
-        error = StatusRed
+        outline = Color(0xFF3D394C),
+        outlineVariant = DarkSurfaceHighlight,
+        error = DarkStatusRed
     )
 
 private val LightColorScheme =
@@ -39,6 +41,8 @@ private val LightColorScheme =
         onPrimaryContainer = Color(0xFF21005D),
         secondary = Color(0xFF625B71),
         onSecondary = Color(0xFFFFFFFF),
+        secondaryContainer = LightSecondaryContainer,
+        onSecondaryContainer = OnLightSecondaryContainer,
         surface = LightSurface,
         onSurface = LightTextPrimary,
         surfaceVariant = LightSurfaceVariant,
@@ -46,8 +50,8 @@ private val LightColorScheme =
         background = LightBackground,
         onBackground = LightTextPrimary,
         outline = Color(0xFF79747E),
-        outlineVariant = Color(0xFFD3D0DC),
-        error = Color(0xFFB3261E)
+        outlineVariant = LightSurfaceHighlight,
+        error = LightStatusRed
     )
 
 @Composable
@@ -77,4 +81,24 @@ fun MyApplicationTheme(
 
     MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)
 }
+
+/**
+ * WCAG 2.1 AA compliant status green that dynamically matches current dark/light surface.
+ */
+val MaterialTheme.statusGreen: Color
+    @Composable
+    get() {
+        val isDark = MaterialTheme.colorScheme.surface == DarkSurface || MaterialTheme.colorScheme.background == DarkBackground
+        return if (isDark) DarkStatusGreen else LightStatusGreen
+    }
+
+/**
+ * WCAG 2.1 AA compliant status red that dynamically matches current dark/light surface.
+ */
+val MaterialTheme.statusRed: Color
+    @Composable
+    get() {
+        val isDark = MaterialTheme.colorScheme.surface == DarkSurface || MaterialTheme.colorScheme.background == DarkBackground
+        return if (isDark) DarkStatusRed else LightStatusRed
+    }
 

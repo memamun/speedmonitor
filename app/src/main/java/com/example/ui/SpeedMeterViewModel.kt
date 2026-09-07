@@ -64,12 +64,8 @@ class SpeedMeterViewModel(application: Application) : AndroidViewModel(applicati
 
     fun checkBatteryOptimization() {
         val app = getApplication<Application>()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val pm = app.getSystemService(Context.POWER_SERVICE) as? PowerManager
-            _isBatteryOptimizationIgnored.value = pm?.isIgnoringBatteryOptimizations(app.packageName) == true
-        } else {
-            _isBatteryOptimizationIgnored.value = true
-        }
+        val pm = app.getSystemService(Context.POWER_SERVICE) as? PowerManager
+        _isBatteryOptimizationIgnored.value = pm?.isIgnoringBatteryOptimizations(app.packageName) == true
     }
 
     fun setSelectedTab(tab: Int) {

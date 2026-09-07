@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Ignore UnusedResources for dynamically loaded status bar icon drawables -->
+    <issue id="UnusedResources">
+        <ignore path="**/res/drawable-hdpi/wkb*" />
+        <ignore path="**/res/drawable-hdpi/wmb*" />
+    </issue>
+    <!-- Foreground speed monitoring requires unrestricted background execution -->
+    <issue id="BatteryLife" severity="informational" />
+    <!-- hdpi status bar icons are intentionally calibrated at 240dpi -->
+    <issue id="IconMissingDensityFolder" severity="informational" />
+</lint>
