@@ -1,15 +1,15 @@
-# Privacy Policy for Speed Meter
+# Privacy Policy for Internet Speed Meter
 
 **Effective Date:** September 8, 2026  
 **Developer:** memamun ([github.com/memamun](https://github.com/memamun))  
 **Contact:** a.a.mamun595@gmail.com  
 
-Speed Meter ("we", "our", or "the app") is committed to protecting your privacy. This policy outlines how your data is handled.
+Internet Speed Meter ("we", "our", or "the app") is committed to protecting your privacy. This policy outlines how your data is handled.
 
 ---
 
 ### 1. Zero Data Collection
-Speed Meter is an on-device utility application:
+Internet Speed Meter is an on-device utility application:
 - **No personal data is collected, stored, or transmitted.**
 - **No analytics, ads, or tracking SDKs** are integrated.
 - All network telemetry (speeds, daily totals) is computed locally and stored in your device's private sandbox.

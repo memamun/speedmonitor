@@ -1,4 +1,4 @@
-# Speed Meter (SpeedMonitor) ⚡
+# Internet Speed Meter ⚡
 
 [![Download APK](https://img.shields.io/badge/Download-APK%20v1.0.0-success?style=for-the-badge&logo=android)](https://github.com/memamun/speedmonitor/releases/latest)
 [![Android](https://img.shields.io/badge/Platform-Android-3DDC84.svg?style=flat&logo=android)](https://www.android.com)
