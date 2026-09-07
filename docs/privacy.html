@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy — SpeedSync</title>
+    <meta name="description" content="Official Privacy Policy for SpeedSync Android app. Strict on-device network telemetry, zero data collection, no ads, and no tracking.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://memamun.github.io/speedsync/privacy.html">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #05070a;
+            --card-bg: #0c1017;
+            --border-color: #1f2937;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --accent: #00e5ff;
+            --accent-purple: #7c4dff;
+            --success: #10b981;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.65;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+        .top-nav {
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.12);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-top: 12px;
+            margin-bottom: 8px;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+        }
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 32px;
+        }
+        h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-top: 32px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+        p, ul {
+            color: #d1d5db;
+            margin-bottom: 16px;
+            font-size: 1rem;
+        }
+        ul {
+            padding-left: 24px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        code {
+            background: rgba(255,255,255,0.06);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #e5e7eb;
+            font-family: monospace;
+        }
+        .contact-box {
+            background: rgba(0, 229, 255, 0.04);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 28px;
+        }
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        footer {
+            margin-top: 48px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-nav">
+            <a href="./index.html" class="back-link">← Back to SpeedSync Home</a>
+            <span class="badge">100% On-Device • Zero Data Collection</span>
+        </div>
+        
+        <h1>Privacy Policy for SpeedSync</h1>
+        <p class="subtitle">Effective Date: September 8, 2026 • Last updated: September 8, 2026</p>
+
+        <p><strong>SpeedSync</strong> ("we", "our", or "the app") is an open-source Android application developed by <strong>memamun</strong>. We respect and value your privacy. This Privacy Policy explains our strict practices regarding data protection and device permissions.</p>
+
+        <h2>1. Zero Data Collection & Transmission</h2>
+        <p>SpeedSync is architected purely as an on-device utility and network telemetry monitor:</p>
+        <ul>
+            <li><strong>We do NOT collect, transmit, store, or sell any personal data.</strong></li>
+            <li><strong>We do NOT integrate external analytics, advertising libraries, tracking SDKs, or profiling tools.</strong></li>
+            <li>All network transfer throughput calculations, ping latency diagnostics, and daily data counters are processed and retained <strong>100% locally</strong> inside your device's isolated application sandbox.</li>
+        </ul>
+
+        <h2>2. Android Permissions & Purpose of Use</h2>
+        <p>SpeedSync requests only the strictly required permissions necessary to deliver its status bar speed meter and data monitoring features:</p>
+        <ul>
+            <li><strong>Foreground Service (Data Sync)</strong> (<code>FOREGROUND_SERVICE_DATA_SYNC</code>): Required to operate the low-latency background monitoring service that reads local network traffic statistics (via Android <code>TrafficStats</code>) and renders updates to the status bar and notification drawer.</li>
+            <li><strong>Location Permission</strong> (<code>ACCESS_FINE_LOCATION</code> / <code>ACCESS_COARSE_LOCATION</code>): Required by Android OS policies starting in Android 9+ to read the connected Wi-Fi router name (SSID). SpeedSync accesses this permission <strong>strictly on-device</strong> so it can display your Wi-Fi name in the app and notification. <em>Your physical GPS coordinates are NEVER accessed, tracked, logged, or transmitted anywhere.</em></li>
+            <li><strong>Post Notifications</strong> (<code>POST_NOTIFICATIONS</code>): Required on Android 13+ to render the ongoing silent speed notification and status bar indicator.</li>
+            <li><strong>Start at Boot</strong> (<code>RECEIVE_BOOT_COMPLETED</code>): If enabled in Settings, allows the background speed service to automatically start when your device reboots.</li>
+            <li><strong>Ignore Battery Optimizations</strong> (<code>REQUEST_IGNORE_BATTERY_OPTIMIZATIONS</code>): Optional permission prompted to ensure uninterrupted speed monitoring without the Android OS prematurely killing the background service.</li>
+        </ul>
+
+        <h2>3. Local Storage & Data Retention</h2>
+        <p>Daily and monthly network usage totals are stored locally using Android SharedPreferences on your device. This data never leaves your device. Uninstalling SpeedSync immediately and permanently purges all stored statistics.</p>
+
+        <h2>4. Third-Party Services & Links</h2>
+        <p>SpeedSync contains no third-party telemetry services. If you visit external links (such as our GitHub repository or project website), their respective privacy policies apply.</p>
+
+        <h2>5. Children's Privacy</h2>
+        <p>Because SpeedSync does not collect, retain, or transmit any data whatsoever, it is safe for all users and complies with global child privacy regulations including COPPA.</p>
+
+        <h2>6. Contact & Open Source Verification</h2>
+        <div class="contact-box">
+            <p>SpeedSync is open-source software licensed under the Apache 2.0 License. You can inspect the entire source code independently on GitHub.</p>
+            <p style="margin-top: 10px;"><strong>Developer:</strong> Abdullah Al Mamun (memamun)</p>
+            <p><strong>Email:</strong> <a href="mailto:a.a.mamun595@gmail.com">a.a.mamun595@gmail.com</a></p>
+            <p><strong>Source Repository:</strong> <a href="https://github.com/memamun/speedsync" target="_blank" rel="noopener">github.com/memamun/speedsync</a></p>
+        </div>
+
+        <footer>
+            &copy; 2026 Abdullah Al Mamun (memamun). SpeedSync is released under the Apache 2.0 License.
+        </footer>
+    </div>
+</body>
+</html>

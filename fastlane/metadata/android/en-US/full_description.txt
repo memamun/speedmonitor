@@ -1,0 +1,20 @@
+SpeedSync is a high-performance, battery-efficient internet speed meter and network data monitor for Android, built with Jetpack Compose and Material 3 Expressive.
+
+Monitor your live network throughput directly in your status bar and notification shade with zero intrusive popups, zero background battery drain, and complete privacy.
+
+KEY FEATURES:
+
+• Real-Time Status Bar Speedometer: Compact speed indicator rendered continuously in your device status bar without needing to pull down the notification shade.
+• Glanceable Silent Notifications: Low-importance, non-intrusive notifications displaying real-time download and upload transfer rates along with daily data consumption.
+• Wi-Fi SSID & Mobile Network Detection: Intelligently detects your connected Wi-Fi router name and cellular carrier right on your device.
+• True OLED Deep Black Theme: Pure black background hierarchy designed specifically for AMOLED and OLED screens to maximize power savings and visual aesthetics.
+• Screen-Off Battery Conservation: Automatically throttles network polling and pauses display rendering when your phone screen turns off, keeping battery consumption below 1.2% per day.
+• Daily & Monthly Data Tracking: Keep track of your daily Wi-Fi and mobile data usage with local historical records.
+• 100% Private & Open Source: No ads, no analytics, no third-party tracking SDKs, and no external servers. All network rate calculations are computed strictly on-device.
+
+PERMISSIONS:
+
+• Foreground Service (Data Sync): Essential for continuous, low-latency network telemetry calculation.
+• Location Permission: Strictly required by the Android OS to read the connected Wi-Fi SSID name. GPS coordinates are never accessed, tracked, or transmitted.
+• Post Notifications: Required on Android 13+ to display the status bar speed indicator and notification telemetry.
+• Boot Completed: Allows automatic resumption of telemetry after device reboot.
